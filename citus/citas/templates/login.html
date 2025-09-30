@@ -1,0 +1,67 @@
+{% extends 'master.html' %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block sidebar_content %}
+<h2>Accede a tu cuenta</h2>
+<p>Ingresa tus credenciales para acceder a tu panel de control y gestionar toda tu información de manera segura.</p>
+{% endblock %}
+
+{% block content %}
+<div class="form-title">
+    <h1>Iniciar Sesión</h1>
+    <p class="form-subtitle">Ingresa tus datos para continuar</p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="input-group">
+        <label for="{{ form.username.id_for_label }}">Usuario</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+            <ul class="errorlist">
+                {% for error in form.username.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <div class="input-group">
+        <label for="{{ form.password.id_for_label }}">Contraseña</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+            <ul class="errorlist">
+                {% for error in form.password.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <div class="checkbox-wrapper">
+        <input type="checkbox" id="remember" name="remember">
+        <label for="remember">Mantener sesión iniciada</label>
+    </div>
+
+    <div class="forgot-link">
+        <a href="#">¿Olvidaste tu contraseña?</a>
+    </div>
+
+    <button type="submit" class="btn-submit">Ingresar</button>
+
+    <div class="separator">
+        <span>O ingresa con</span>
+    </div>
+
+    <div class="alternative-login">
+        <button type="button" class="alt-btn">Google</button>
+        <button type="button" class="alt-btn">Microsoft</button>
+    </div>
+
+    <div class="footer-text">
+        ¿No tienes cuenta? <a href="{% url 'registrarse' %}">Crear cuenta</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'master.html' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block sidebar_content %}
+<h2>Bienvenido a Nuestra Peluquería</h2>
+<p>Agenda tu cita en línea de forma rápida y sencilla.  
+Disfruta de un servicio profesional y personalizado.</p>
+{% endblock %}
+
+{% block content %}
+<div class="form-title">
+    <h1>Bienvenido a Citus Peluquería</h1>
+    <p class="form-subtitle">Cuidamos tu estilo, cuidamos de ti</p>
+</div>
+
+<div style="text-align: center; margin-top: 40px;">
+    <a href="{% url 'login' %}" class="btn-submit" style="display: inline-block; width: auto; padding: 12px 24px; margin: 10px;">
+        Iniciar Sesión
+    </a>
+    <a href="{% url 'registrarse' %}" class="btn-submit" style="display: inline-block; width: auto; padding: 12px 24px; margin: 10px; background:#6c757d;">
+        Registrarse
+    </a>
+</div>
+{% endblock %}

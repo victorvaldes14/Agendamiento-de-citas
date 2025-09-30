@@ -16,7 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from citas import views as v
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # Página de inicio
+    path('', v.inicio, name='inicio'),
+    
+    # Autenticación
+    path('login/', v.iniciar_sesion, name='login'),
+    path('logout/', v.cerrar_sesion, name='logout'),
+    path('registro/', v.registro, name='registrarse'),
+    
+    # Panel de usuario
+    path('panel/', v.panel_usuario, name='panel_usuario'),
+    
+    # Gestión de citas
+    path('agendar/', v.agendar_cita, name='agendar_cita'),
+    path('cita/<int:cita_id>/', v.detalle_cita, name='detalle_cita'),
+    path('cita/<int:cita_id>/cancelar/', v.cancelar_cita, name='cancelar_cita'),
 ]

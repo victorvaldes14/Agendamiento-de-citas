@@ -1,0 +1,122 @@
+{% extends 'master.html' %}
+
+{% block title %}Panel de Usuario{% endblock %}
+
+{% block sidebar_content %}
+<h2>Panel de Control</h2>
+<p>Gestiona tus citas y configura tu perfil desde aquí.</p>
+{% endblock %}
+
+{% block content %}
+<div class="form-title">
+    <h1>Bienvenido, {{ user.username }}!</h1>
+    <p class="form-subtitle">Tu panel de control personalizado</p>
+</div>
+
+<div style="margin-top: 30px;">
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 style="color: #495057; margin-bottom: 10px;">Información de tu cuenta</h3>
+        <p style="color: #6c757d; margin: 5px 0;"><strong>Usuario:</strong> {{ user.username }}</p>
+        <p style="color: #6c757d; margin: 5px 0;"><strong>Email:</strong> {{ user.email }}</p>
+        <p style="color: #6c757d; margin: 5px 0;"><strong>Miembro desde:</strong> {{ user.date_joined|date:"d/m/Y" }}</p>
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{% url 'agendar_cita' %}" class="btn-submit" style="display: inline-block; width: auto; padding: 14px 30px; text-decoration: none;">
+            Agendar Nueva Cita
+        </a>
+    </div>
+
+    <!-- Citas Próximas -->
+    {% if citas_proximas %}
+    <div style="margin-top: 30px;">
+        <h3 style="color: #495057; margin-bottom: 15px; border-bottom: 2px solid #495057; padding-bottom: 10px;">
+            Próximas Citas
+        </h3>
+        {% for cita in citas_proximas %}
+        <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <h4 style="color: #495057; margin: 0 0 10px 0;">{{ cita.servicio.nombre }}</h4>
+                    <p style="color: #6c757d; margin: 5px 0; font-size: 14px;">
+                        <strong>📅 Fecha:</strong> {{ cita.fecha|date:"d/m/Y" }}
+                    </p>
+                    <p style="color: #6c757d; margin: 5px 0; font-size: 14px;">
+                        <strong>🕐 Hora:</strong> {{ cita.hora|time:"H:i" }}
+                    </p>
+                    <p style="color: #6c757d; margin: 5px 0; font-size: 14px;">
+                        <strong>💰 Precio:</strong> ${{ cita.servicio.precio }}
+                    </p>
+                    <p style="margin: 5px 0; font-size: 14px;">
+                        <strong>Estado:</strong>
+                        <span style="
+                            {% if cita.estado == 'confirmada' %}
+                                background: #d4edda; color: #155724; padding: 3px 8px; border-radius: 4px;
+                            {% else %}
+                                background: #fff3cd; color: #856404; padding: 3px 8px; border-radius: 4px;
+                            {% endif %}
+                        ">
+                            {{ cita.get_estado_display }}
+                        </span>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <a href="{% url 'detalle_cita' cita.id %}" style="padding: 8px 16px; background: #6c757d; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; display: inline-block;">
+                        Ver Detalle
+                    </a>
+                    {% if cita.puede_cancelar %}
+                    <a href="{% url 'cancelar_cita' cita.id %}" style="padding: 8px 16px; background: #dc3545; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; display: inline-block;">
+                        Cancelar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="background: #e9ecef; padding: 30px; border-radius: 8px; text-align: center; margin-top: 30px;">
+        <p style="color: #6c757d; font-size: 16px; margin: 0;">
+            No tienes citas próximas. ¡Agenda una ahora!
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Historial de Citas -->
+    {% if citas_pasadas %}
+    <div style="margin-top: 40px;">
+        <h3 style="color: #495057; margin-bottom: 15px; border-bottom: 2px solid #495057; padding-bottom: 10px;">
+            Historial de Citas
+        </h3>
+        {% for cita in citas_pasadas %}
+        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 10px; opacity: 0.8;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <h4 style="color: #6c757d; margin: 0 0 5px 0; font-size: 16px;">{{ cita.servicio.nombre }}</h4>
+                    <p style="color: #868e96; margin: 0; font-size: 14px;">
+                        {{ cita.fecha|date:"d/m/Y" }} - {{ cita.hora|time:"H:i" }}
+                    </p>
+                </div>
+                <span style="
+                    {% if cita.estado == 'completada' %}
+                        background: #c3e6cb; color: #155724;
+                    {% elif cita.estado == 'cancelada' %}
+                        background: #f5c6cb; color: #721c24;
+                    {% endif %}
+                    padding: 5px 10px; border-radius: 4px; font-size: 13px;
+                ">
+                    {{ cita.get_estado_display }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #dee2e6;">
+        <a href="{% url 'logout' %}" style="color: #6c757d; text-decoration: none; font-size: 14px;">
+            Cerrar Sesión
+        </a>
+    </div>
+</div>
+{% endblock %}
