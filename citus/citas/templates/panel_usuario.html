@@ -1,0 +1,13 @@
+{% extends 'master.html' %}
+{% block title %}Mi Panel{% endblock %}
+{% block content %}
+<h1>Mis Citas</h1>
+{% for c in citas %}
+  <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+    <strong>{{ c.servicio.nombre }}</strong> - {{ c.fecha }} {{ c.hora }}<br>
+    Estado: {{ c.get_estado_display }}
+  </div>
+{% empty %}
+  <p>No tienes citas registradas.</p>
+{% endfor %}
+{% endblock %}

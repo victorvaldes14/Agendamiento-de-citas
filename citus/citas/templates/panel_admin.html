@@ -1,0 +1,23 @@
+{% extends 'master.html' %}
+{% block title %}Panel Administrativo{% endblock %}
+{% block content %}
+<h1>Todas las Citas</h1>
+<table border="1" style="width:100%; text-align:left;">
+  <tr><th>Cliente</th><th>Servicio</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr>
+  {% for c in citas %}
+  <tr>
+<td>
+  {% if c.usuario %}
+    {{ c.usuario.username }}
+  {% else %}
+    {{ c.nombre_cliente }}
+  {% endif %}
+</td>
+    <td>{{ c.servicio.nombre }}</td>
+    <td>{{ c.fecha }}</td>
+    <td>{{ c.hora }}</td>
+    <td>{{ c.get_estado_display }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

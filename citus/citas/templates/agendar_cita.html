@@ -1,107 +1,30 @@
 {% extends 'master.html' %}
-
 {% block title %}Agendar Cita{% endblock %}
-
-{% block sidebar_content %}
-<h2>Agenda tu Cita</h2>
-<p>Selecciona el servicio, fecha y hora que más te convenga. Te confirmamos tu cita inmediatamente.</p>
-{% endblock %}
-
 {% block content %}
-<div class="form-title">
-    <h1>Agendar Nueva Cita</h1>
-    <p class="form-subtitle">Completa los datos para reservar tu horario</p>
-</div>
-
-<!-- Servicios Disponibles -->
-<div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-    <h3 style="color: #495057; margin-bottom: 15px;">Servicios Disponibles</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-        {% for servicio in servicios %}
-        <div style="background: white; padding: 15px; border-radius: 6px; border: 2px solid #dee2e6;">
-            <h4 style="color: #495057; margin: 0 0 8px 0;">{{ servicio.nombre }}</h4>
-            <p style="color: #6c757d; font-size: 14px; margin: 5px 0;">{{ servicio.descripcion }}</p>
-            <p style="color: #495057; margin: 8px 0 0 0; font-weight: 600;">
-                💰 ${{ servicio.precio }} - ⏱️ {{ servicio.duracion_minutos }} min
-            </p>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
+<h1>Agendar tu Cita</h1>
 <form method="post">
-    {% csrf_token %}
-    
-    <div class="input-group">
-        <label for="{{ form.servicio.id_for_label }}">{{ form.servicio.label }}</label>
-        {{ form.servicio }}
-        {% if form.servicio.errors %}
-            <ul class="errorlist">
-                {% for error in form.servicio.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-
-    <div class="input-group">
-        <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
-        {{ form.fecha }}
-        {% if form.fecha.errors %}
-            <ul class="errorlist">
-                {% for error in form.fecha.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        <p style="color: #6c757d; font-size: 13px; margin-top: 5px;">
-            Selecciona una fecha disponible
-        </p>
-    </div>
-
-    <div class="input-group">
-        <label for="{{ form.hora.id_for_label }}">{{ form.hora.label }}</label>
-        {{ form.hora }}
-        {% if form.hora.errors %}
-            <ul class="errorlist">
-                {% for error in form.hora.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        <p style="color: #6c757d; font-size: 13px; margin-top: 5px;">
-            Horario de atención: 9:00 AM - 7:00 PM
-        </p>
-    </div>
-
-    <div class="input-group">
-        <label for="{{ form.notas.id_for_label }}">{{ form.notas.label }}</label>
-        {{ form.notas }}
-        {% if form.notas.errors %}
-            <ul class="errorlist">
-                {% for error in form.notas.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-
-    {% if form.non_field_errors %}
-    <div class="alert alert-error">
-        {{ form.non_field_errors }}
-    </div>
-    {% endif %}
-
-    <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-        <p style="color: #856404; margin: 0; font-size: 14px;">
-            <strong>⚠️ Importante:</strong> Las citas deben cancelarse con al menos 2 horas de anticipación.
-        </p>
-    </div>
-
-    <button type="submit" class="btn-submit">Confirmar Cita</button>
-
-    <div class="footer-text" style="margin-top: 25px;">
-        <a href="{% url 'panel_usuario' %}">← Volver al panel</a>
-    </div>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn-submit">Confirmar Cita</button>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const fechaInput = document.querySelector('input[type="date"]');
+  const horaSelect = document.querySelector('select[name="hora"]');
+  fechaInput.addEventListener('change', () => {
+    fetch(`/horas/?fecha=${fechaInput.value}`)
+      .then(r => r.json())
+      .then(data => {
+        horaSelect.innerHTML = '';
+        data.horas.forEach(h => {
+          const opt = document.createElement('option');
+          opt.value = h;
+          opt.textContent = h;
+          horaSelect.appendChild(opt);
+        });
+      });
+  });
+});
+</script>
 {% endblock %}

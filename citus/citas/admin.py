@@ -1,40 +1,24 @@
 from django.contrib import admin
-from .models import Cita, ServicioCorte, HorarioDisponible
+from .models import Cita, ServicioCorte, PerfilUsuario
 
 
 @admin.register(ServicioCorte)
 class ServicioCorteAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'precio', 'duracion_minutos', 'activo')
     list_filter = ('activo',)
-    search_fields = ('nombre', 'descripcion')
-    list_editable = ('activo',)
-
-
-@admin.register(HorarioDisponible)
-class HorarioDisponibleAdmin(admin.ModelAdmin):
-    list_display = ('get_dia_semana_display', 'hora_inicio', 'hora_fin', 'activo')
-    list_filter = ('dia_semana', 'activo')
-    list_editable = ('activo',)
+    search_fields = ('nombre',)
 
 
 @admin.register(Cita)
 class CitaAdmin(admin.ModelAdmin):
-    list_display = ('usuario', 'servicio', 'fecha', 'hora', 'estado', 'creado_en')
+    list_display = ('fecha', 'hora', 'servicio', 'estado', 'usuario', 'nombre_cliente')
     list_filter = ('estado', 'fecha', 'servicio')
-    search_fields = ('usuario__username', 'usuario__email')
-    date_hierarchy = 'fecha'
+    search_fields = ('usuario__username', 'nombre_cliente', 'correo_cliente')
     ordering = ('-fecha', '-hora')
-    readonly_fields = ('creado_en', 'actualizado_en')
-    
-    fieldsets = (
-        ('Información del Cliente', {
-            'fields': ('usuario',)
-        }),
-        ('Detalles de la Cita', {
-            'fields': ('servicio', 'fecha', 'hora', 'estado', 'notas')
-        }),
-        ('Información del Sistema', {
-            'fields': ('creado_en', 'actualizado_en'),
-            'classes': ('collapse',)
-        }),
-    )
+
+
+@admin.register(PerfilUsuario)
+class PerfilUsuarioAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'telefono', 'es_peluquero')
+    list_filter = ('es_peluquero',)
+    search_fields = ('usuario__username', 'telefono')

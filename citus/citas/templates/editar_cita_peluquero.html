@@ -1,0 +1,13 @@
+{% extends 'master.html' %}
+{% block title %}Editar Cita{% endblock %}
+{% block content %}
+<h1>Editar Cita</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+  <button type="submit" class="btn-submit">Guardar Cambios</button>
+  <a href="{% url 'panel_peluquero' %}" class="btn-submit" style="background:#6c757d;">Cancelar</a>
+</form>
+{% endblock %}

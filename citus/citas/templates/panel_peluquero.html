@@ -1,0 +1,22 @@
+{% extends 'master.html' %}
+{% block title %}Panel del Peluquero{% endblock %}
+{% block content %}
+<h1>Citas Asignadas</h1>
+{% endblock %}
+{% for c in citas %}
+  <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+    <strong>{{ c.nombre_cliente }} {{ c.apellido_cliente }}</strong><br>
+    Servicio: {{ c.servicio.nombre }}<br>
+    Fecha: {{ c.fecha }} - {{ c.hora }}<br>
+    Estado: {{ c.get_estado_display }}
+    <div style="margin-top:10px;">
+      <a href="{% url 'editar_cita_peluquero' c.id %}" class="btn-submit" style="background:#007bff;">Editar</a>
+      <a href="{% url 'eliminar_cita_peluquero' c.id %}" class="btn-submit" style="background:#dc3545;">Eliminar</a>
+      {% if c.estado != 'completada' %}
+        <a href="{% url 'marcar_cita_atendida' c.id %}" class="btn-submit" style="background:#28a745;">Marcar como Atendida</a>
+      {% endif %}
+    </div>
+  </div>
+{% empty %}
+  <p>No tienes citas asignadas.</p>
+{% endfor %}

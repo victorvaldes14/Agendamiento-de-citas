@@ -1,140 +1,153 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, CitaForm
-from .models import Cita, ServicioCorte
-import datetime
+from django.http import JsonResponse
+from .forms import CustomUserCreationForm, CitaPublicaForm
+from .models import Cita, ServicioCorte, PerfilUsuario
+from django.contrib.auth import login as auth_login
 
+
+# -----------------------
+#   REGISTRO DE USUARIO
+# -----------------------
+def registro(request):
+    """Permite registrar nuevos usuarios."""
+    if request.user.is_authenticated:
+        return redirect('panel_usuario')
+
+    if request.method == "POST":
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            messages.success(request, "Cuenta creada correctamente 🎉")
+            return redirect('panel_usuario')
+        else:
+            messages.error(request, "Corrige los errores en el formulario.")
+    else:
+        form = CustomUserCreationForm()
+    return render(request, "register.html", {"form": form})
+
+
+# -----------------------
+#   FUNCIONES GENERALES
+# -----------------------
 
 def inicio(request):
-    """Página de inicio - landing page"""
-    if request.user.is_authenticated:
-        return redirect('panel_usuario')
-    return render(request, "index.html")
-
-
-def registro(request):
-    """Registro de nuevos usuarios"""
-    if request.user.is_authenticated:
-        return redirect('panel_usuario')
-    
-    if request.method == "POST":
-        formulario = CustomUserCreationForm(request.POST)
-        if formulario.is_valid():
-            user = formulario.save()
-            username = formulario.cleaned_data.get('username')
-            messages.success(request, f'Cuenta creada exitosamente para {username}. Ahora puedes iniciar sesión.')
-            return redirect("login")
-        else:
-            messages.error(request, "Por favor corrige los errores en el formulario.")
-    else:
-        formulario = CustomUserCreationForm()
-    
-    return render(request, "register.html", {"form": formulario})
-
-
-def iniciar_sesion(request):
-    """Login de usuarios"""
-    if request.user.is_authenticated:
-        return redirect('panel_usuario')
-    
-    if request.method == "POST":
-        formulario = CustomAuthenticationForm(request, data=request.POST)
-        if formulario.is_valid():
-            user = formulario.get_user()
-            auth_login(request, user)
-            messages.success(request, f'¡Bienvenido {user.username}!')
-            
-            next_url = request.GET.get('next', 'panel_usuario')
-            return redirect(next_url)
-        else:
-            messages.error(request, 'Usuario o contraseña incorrectos.')
-    else:
-        formulario = CustomAuthenticationForm()
-    
-    return render(request, "login.html", {"form": formulario})
-
-
-def cerrar_sesion(request):
-    """Logout de usuarios"""
-    username = request.user.username if request.user.is_authenticated else None
-    auth_logout(request)
-    if username:
-        messages.info(request, f'Hasta pronto {username}, has cerrado sesión.')
-    return redirect('inicio')
-
-
-@login_required(login_url='login')
-def panel_usuario(request):
-    """Panel de control del usuario autenticado"""
-    citas_proximas = Cita.objects.filter(
-        usuario=request.user,
-        fecha__gte=timezone.now().date(),
-        estado__in=['pendiente', 'confirmada']
-    ).order_by('fecha', 'hora')[:5]
-    
-    citas_pasadas = Cita.objects.filter(
-        usuario=request.user,
-        fecha__lt=timezone.now().date()
-    ).order_by('-fecha', '-hora')[:5]
-    
-    context = {
-        'citas_proximas': citas_proximas,
-        'citas_pasadas': citas_pasadas,
-    }
-    return render(request, "panel.html", context)
-
-
-@login_required(login_url='login')
-def agendar_cita(request):
-    """Vista para agendar una nueva cita"""
-    if request.method == "POST":
-        formulario = CitaForm(request.POST)
-        if formulario.is_valid():
-            cita = formulario.save(commit=False)
-            cita.usuario = request.user
-            cita.estado = 'pendiente'
-            try:
-                cita.save()
-                messages.success(request, '¡Cita agendada exitosamente! Te esperamos.')
-                return redirect('panel_usuario')
-            except Exception as e:
-                messages.error(request, f'Error al agendar la cita: {str(e)}')
-        else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
-    else:
-        formulario = CitaForm()
-    
+    """Página inicial - agendamiento público"""
     servicios = ServicioCorte.objects.filter(activo=True)
-    context = {
-        'form': formulario,
-        'servicios': servicios,
-    }
-    return render(request, "agendar_cita.html", context)
+    return render(request, "index.html", {"servicios": servicios})
 
 
-@login_required(login_url='login')
-def cancelar_cita(request, cita_id):
-    """Vista para cancelar una cita"""
-    cita = get_object_or_404(Cita, id=cita_id, usuario=request.user)
-    
-    if not cita.puede_cancelar:
-        messages.error(request, 'No puedes cancelar esta cita. Debe ser con al menos 2 horas de anticipación.')
-        return redirect('panel_usuario')
-    
+def obtener_horas_disponibles(request):
+    """Devuelve horas libres en formato JSON para una fecha dada"""
+    fecha = request.GET.get("fecha")
+    if not fecha:
+        return JsonResponse({"error": "Fecha no válida"}, status=400)
+
+    fecha = timezone.datetime.strptime(fecha, "%Y-%m-%d").date()
+    horas_ocupadas = Cita.objects.filter(
+        fecha=fecha,
+        estado__in=["pendiente", "confirmada"]
+    ).values_list("hora", flat=True)
+
+    todas_horas = [timezone.datetime.strptime(f"{h:02d}:00", "%H:%M").time() for h in range(9, 19)]
+    disponibles = [h.strftime("%H:%M") for h in todas_horas if h not in horas_ocupadas]
+    return JsonResponse({"horas": disponibles})
+
+
+def _asignar_peluquero_automatico(cita: Cita):
+    """Asigna automáticamente un peluquero según menor carga"""
+    peluqueros = PerfilUsuario.objects.filter(es_peluquero=True).select_related('usuario')
+    if not peluqueros.exists():
+        return
+    cargas = [(Cita.objects.filter(peluquero=p.usuario, fecha=cita.fecha).count(), p.usuario) for p in peluqueros]
+    cargas.sort(key=lambda x: x[0])
+    cita.peluquero = cargas[0][1]
+
+
+def agendar_cita_publica(request):
+    """Permite agendar sin estar registrado"""
     if request.method == "POST":
-        cita.estado = 'cancelada'
-        cita.save()
-        messages.success(request, 'Cita cancelada exitosamente.')
-        return redirect('panel_usuario')
-    
-    return render(request, "cancelar_cita.html", {'cita': cita})
+        form = CitaPublicaForm(request.POST)
+        if form.is_valid():
+            cita = form.save(commit=False)
+            cita.estado = "pendiente"
+            _asignar_peluquero_automatico(cita)
+            cita.save()
+            messages.success(request, "Cita agendada correctamente 🎉")
+            return redirect("inicio")
+        else:
+            messages.error(request, "Corrige los errores en el formulario.")
+    else:
+        form = CitaPublicaForm()
+    return render(request, "agendar_cita.html", {"form": form})
 
 
-@login_required(login_url='login')
-def detalle_cita(request, cita_id):
-    """Vista para ver el detalle de una cita"""
-    cita = get_object_or_404(Cita, id=cita_id, usuario=request.user)
-    return render(request, "detalle_cita.html", {'cita': cita})
+# -----------------------
+#   PANEL DE USUARIO
+# -----------------------
+
+@login_required
+def panel_usuario(request):
+    citas = Cita.objects.filter(usuario=request.user).order_by('-fecha', '-hora')
+    return render(request, "panel_usuario.html", {"citas": citas})
+
+
+# -----------------------
+#   PANEL DE PELUQUERO
+# -----------------------
+
+def es_peluquero(user):
+    return hasattr(user, 'perfilusuario') and user.perfilusuario.es_peluquero
+
+
+@user_passes_test(es_peluquero, login_url='login')
+def panel_peluquero(request):
+    citas = Cita.objects.filter(peluquero=request.user).order_by('fecha', 'hora')
+    return render(request, "panel_peluquero.html", {"citas": citas})
+
+
+@user_passes_test(es_peluquero, login_url='login')
+def editar_cita_peluquero(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, peluquero=request.user)
+    if request.method == "POST":
+        form = CitaPublicaForm(request.POST, instance=cita)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Cita actualizada correctamente.")
+            return redirect("panel_peluquero")
+    else:
+        form = CitaPublicaForm(instance=cita)
+    return render(request, "editar_cita_peluquero.html", {"form": form, "cita": cita})
+
+
+@user_passes_test(es_peluquero, login_url='login')
+def eliminar_cita_peluquero(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, peluquero=request.user)
+    if request.method == "POST":
+        cita.delete()
+        messages.success(request, "Cita eliminada correctamente.")
+        return redirect("panel_peluquero")
+    return render(request, "confirmar_eliminar_cita.html", {"cita": cita})
+
+
+@user_passes_test(es_peluquero, login_url='login')
+def marcar_cita_atendida(request, cita_id):
+    """Permite al peluquero marcar una cita como completada"""
+    cita = get_object_or_404(Cita, id=cita_id, peluquero=request.user)
+    cita.estado = "completada"
+    cita.save()
+    messages.success(request, "Cita marcada como atendida ✅")
+    return redirect("panel_peluquero")
+
+
+# -----------------------
+#   PANEL ADMIN
+# -----------------------
+
+@login_required
+def panel_admin(request):
+    citas = Cita.objects.all().order_by("-fecha", "-hora")
+    return render(request, "panel_admin.html", {"citas": citas})
