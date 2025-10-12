@@ -1,0 +1,14 @@
+{% extends 'master.html' %}
+{% block title %}Reagendar Cita{% endblock %}
+{% block content %}
+<h1>Reagendar Cita</h1>
+
+<p style="margin-bottom:15px;">Puedes modificar la fecha y hora de tu cita. Solo se permitirá reagendar si hay disponibilidad.</p>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn-submit">Guardar Cambios</button>
+  <a href="{% url 'panel_usuario' %}" class="btn-submit" style="background:#6c757d;">Cancelar</a>
+</form>
+{% endblock %}

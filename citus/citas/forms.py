@@ -5,9 +5,7 @@ from .models import Cita, ServicioCorte
 import datetime
 
 
-# ----------------------------
-# FORMULARIO DE REGISTRO USUARIO
-# ----------------------------
+
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
@@ -46,26 +44,28 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password2'].help_text = ''
 
 
-# ----------------------------
-# FORMULARIO DE CITAS PÚBLICO
-# ----------------------------
+
 class CitaPublicaForm(forms.ModelForm):
-    """Formulario para agendar citas sin necesidad de registro"""
+    """Formulario de agendamiento (dinámico: público o usuario registrado)"""
 
     nombre_cliente = forms.CharField(
         label="Nombre",
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Nombre'})
     )
     apellido_cliente = forms.CharField(
         label="Apellido",
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Apellido'})
     )
     correo_cliente = forms.EmailField(
         label="Correo",
+        required=False,
         widget=forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'ejemplo@correo.com'})
     )
     telefono_cliente = forms.CharField(
         label="Teléfono",
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+56 9 1234 5678'})
     )
 
@@ -97,10 +97,17 @@ class CitaPublicaForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.fields['hora'].choices = self.generar_horas_disponibles()
 
+        # Si el usuario está logeado, ocultamos los campos de contacto
+        if user and user.is_authenticated:
+            for field in ['nombre_cliente', 'apellido_cliente', 'correo_cliente', 'telefono_cliente']:
+                self.fields[field].widget = forms.HiddenInput()
+
     def generar_horas_disponibles(self):
+        import datetime
         horas = []
         hora_actual = datetime.datetime.combine(datetime.date.today(), datetime.time(9, 0))
         hora_final = datetime.datetime.combine(datetime.date.today(), datetime.time(19, 0))
@@ -108,3 +115,4 @@ class CitaPublicaForm(forms.ModelForm):
             horas.append((hora_actual.time().strftime('%H:%M'), hora_actual.time().strftime('%H:%M')))
             hora_actual += datetime.timedelta(minutes=30)
         return horas
+

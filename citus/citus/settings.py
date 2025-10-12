@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'citas',
+    'admin_interface',
+    'colorfield',
 ]
 
 MIDDLEWARE = [
@@ -124,9 +126,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Configuración de autenticación
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'panel_usuario'
+# Después de iniciar sesión, redirige al inicio
+LOGIN_REDIRECT_URL = 'inicio'
+
+# Después de cerrar sesión, redirige al inicio
 LOGOUT_REDIRECT_URL = 'inicio'
+
+# Permitir hosts locales
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+# Confiar en estos orígenes para CSRF
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
 
 # Configuración de mensajes
 from django.contrib.messages import constants as messages

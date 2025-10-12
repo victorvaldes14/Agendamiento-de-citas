@@ -1,22 +1,32 @@
 {% extends 'master.html' %}
-{% block title %}Panel del Peluquero{% endblock %}
+{% block title %}Panel Peluquero{% endblock %}
+
 {% block content %}
-<h1>Citas Asignadas</h1>
-{% endblock %}
-{% for c in citas %}
-  <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
-    <strong>{{ c.nombre_cliente }} {{ c.apellido_cliente }}</strong><br>
-    Servicio: {{ c.servicio.nombre }}<br>
-    Fecha: {{ c.fecha }} - {{ c.hora }}<br>
-    Estado: {{ c.get_estado_display }}
-    <div style="margin-top:10px;">
-      <a href="{% url 'editar_cita_peluquero' c.id %}" class="btn-submit" style="background:#007bff;">Editar</a>
-      <a href="{% url 'eliminar_cita_peluquero' c.id %}" class="btn-submit" style="background:#dc3545;">Eliminar</a>
-      {% if c.estado != 'completada' %}
-        <a href="{% url 'marcar_cita_atendida' c.id %}" class="btn-submit" style="background:#28a745;">Marcar como Atendida</a>
-      {% endif %}
-    </div>
+<h1 style="color:white; margin-bottom:20px;">Citas Asignadas</h1>
+
+{% if citas %}
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:15px;">
+    {% for c in citas %}
+      <div style="background:white; padding:15px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+        <h3 style="margin-top:0; color:#212529;">{{ c.servicio.nombre }}</h3>
+        <p><strong>Cliente:</strong> {{ c.nombre_cliente|default:c.usuario.username }}</p>
+        <p><strong>Fecha:</strong> {{ c.fecha|date:"d/m/Y" }}</p>
+        <p><strong>Hora:</strong> {{ c.hora|time:"H:i" }}</p>
+        <p><strong>Estado:</strong>
+          {% if c.estado == 'pendiente' %}
+            <span style="background:#ffc107; color:#000; padding:4px 8px; border-radius:6px;">Pendiente</span>
+          {% elif c.estado == 'completada' %}
+            <span style="background:#28a745; color:#fff; padding:4px 8px; border-radius:6px;">Completada</span>
+          {% elif c.estado == 'cancelada' %}
+            <span style="background:#dc3545; color:#fff; padding:4px 8px; border-radius:6px;">Cancelada</span>
+          {% else %}
+            {{ c.get_estado_display }}
+          {% endif %}
+        </p>
+      </div>
+    {% endfor %}
   </div>
-{% empty %}
-  <p>No tienes citas asignadas.</p>
-{% endfor %}
+{% else %}
+  <p style="color:#adb5bd;">No tienes citas asignadas actualmente.</p>
+{% endif %}
+{% endblock %}

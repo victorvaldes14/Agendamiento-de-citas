@@ -53,7 +53,13 @@ class Cita(models.Model):
 
     class Meta:
         ordering = ['-fecha', '-hora']
-        unique_together = ['fecha', 'hora']
+        unique_together = ['fecha', 'hora', 'peluquero']
+
+    def clean(self):
+        if self.peluquero and Cita.objects.exclude(id=self.id).filter(
+            fecha=self.fecha, hora=self.hora, peluquero=self.peluquero
+        ).exists():
+            raise ValidationError("El peluquero ya tiene una cita a esa hora.")
 
     def __str__(self):
         cliente = self.usuario.username if self.usuario else f"{self.nombre_cliente} {self.apellido_cliente}"
