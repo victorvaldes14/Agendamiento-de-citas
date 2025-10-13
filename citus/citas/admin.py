@@ -8,7 +8,7 @@ from .models import Cita, ServicioCorte, PerfilUsuario
 # PERSONALIZACIÓN GLOBAL ADMIN
 # ==========================
 
-admin.site.site_header = "💈 Citus Peluquería"
+admin.site.site_header = "Citus Peluquería"
 admin.site.site_title = "Panel Administrativo Citus"
 admin.site.index_title = "Gestión de Citas y Servicios"
 
@@ -64,7 +64,7 @@ class CitaAdmin(admin.ModelAdmin):
     # ---- PELUQUERO (formato visual) ----
     def peluquero_display(self, obj):
         if obj.peluquero:
-            return format_html("💈 <b>{}</b>", obj.peluquero.username)
+            return format_html(" <b>{}</b>", obj.peluquero.username)
         return "—"
     peluquero_display.short_description = "Peluquero"
 

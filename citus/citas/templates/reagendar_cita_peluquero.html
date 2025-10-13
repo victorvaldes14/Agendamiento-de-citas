@@ -6,8 +6,9 @@
     <h2 style="text-align:center; margin-bottom:20px;">Reagendar Cita</h2>
 
     <p style="margin-bottom:15px;">
-        Estás reagendando tu cita del 
-        <strong>{{ cita.fecha|date:"d/m/Y" }}</strong> 
+        Estás reagendando la cita de 
+        <strong>{{ cita.nombre_cliente|default:cita.usuario.username }}</strong> 
+        del día <strong>{{ cita.fecha|date:"d/m/Y" }}</strong> 
         a las <strong>{{ cita.hora|time:"H:i" }}</strong>.
     </p>
 
@@ -19,16 +20,16 @@
 
     <form method="post">
         {% csrf_token %}
-        <label for="id_fecha"><strong>Nueva fecha:</strong></label>
-        {{ form.fecha }}
-        <label for="id_hora"><strong>Nueva hora:</strong></label>
-        {{ form.hora }}
+        <label for="id_nueva_fecha"><strong>Nueva fecha:</strong></label>
+        {{ form.nueva_fecha }}
+        <label for="id_nueva_hora"><strong>Nueva hora:</strong></label>
+        {{ form.nueva_hora }}
         <label for="id_motivo_reagendamiento"><strong>Motivo del reagendamiento:</strong></label>
         {{ form.motivo_reagendamiento }}
 
         <div style="margin-top:20px;">
             <button type="submit" class="btn success" style="width:100%;">Guardar Cambios</button>
-            <a href="{% url 'panel_usuario' %}" class="btn neutral" style="width:100%; display:inline-block; text-align:center; margin-top:8px;">Volver</a>
+            <a href="{% url 'panel_peluquero' %}" class="btn neutral" style="width:100%; display:inline-block; text-align:center; margin-top:8px;">Volver</a>
         </div>
     </form>
 </div>

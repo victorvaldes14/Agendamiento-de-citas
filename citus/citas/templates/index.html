@@ -1,16 +1,20 @@
 {% extends 'master.html' %}
-{% block title %}Citus Peluquería{% endblock %}
-{% block sidebar_content %}
-<h2>Bienvenido</h2>
-<p>Agenda tu cita fácilmente sin necesidad de registrarte.</p>
-{% endblock %}
+{% block title %}Inicio{% endblock %}
+
 {% block content %}
-<div style="text-align:center; margin-top:50px;">
-  <h1>💇‍♂️ Citus Peluquería</h1>
-  <p style="margin-bottom:20px;">Cuidamos tu estilo, cuidamos de ti.</p>
-  <a href="{% url 'agendar_cita_publica' %}" class="btn-submit" style="font-size:18px; padding:20px 40px;">Agendar Cita</a>
-  <div style="margin-top:40px;">
-    <a href="/login" style="color:#6c757d;">Iniciar sesión / Registrarse</a>
-  </div>
+<div style="text-align:center; color:white;">
+    <h1 style="font-size:2rem; margin-bottom:20px;">Bienvenido a Citus Peluquería</h1>
+    <p style="font-size:1.1rem; color:#ddd; max-width:600px; margin:0 auto;">
+        Agenda tu cita de forma rápida y sencilla.  
+        Accede a tu cuenta para gestionar tus servicios o visita nuestro panel de administración si eres parte del equipo.
+    </p>
+
+    <div style="margin-top:30px;">
+        <a href="{% url 'agendar_cita_publica' %}" class="btn info">Agendar Cita</a>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'registrarse' %}" class="btn success">Registrarse</a>
+            <a href="{% url 'login' %}" class="btn neutral">Iniciar Sesión</a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

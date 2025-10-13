@@ -1,0 +1,12 @@
+{% extends 'master.html' %}
+{% block title %}Cancelar cita{% endblock %}
+{% block content %}
+<h2>Cancelar cita</h2>
+<p>Estás cancelando la cita del <strong>{{ cita.fecha|date:"d/m/Y" }}</strong> a las <strong>{{ cita.hora|time:"H:i" }}</strong>.</p>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn-submit" style="background:#dc3545;">Confirmar cancelación</button>
+  <a href="{% url 'panel_peluquero' %}" class="btn-submit" style="background:#6c757d;">Volver</a>
+</form>
+{% endblock %}

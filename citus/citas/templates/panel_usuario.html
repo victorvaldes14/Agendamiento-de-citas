@@ -1,23 +1,32 @@
 {% extends 'master.html' %}
 {% block title %}Mi Panel{% endblock %}
+
 {% block content %}
-<h1>Mis Citas</h1>
-{% for c in citas %}
-  <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
-    <strong>{{ c.servicio.nombre }}</strong> - {{ c.fecha }} {{ c.hora }}<br>
-    Estado: {{ c.get_estado_display }}
+<h1 style="color:white; margin-bottom:20px;">Mis Citas</h1>
 
-    <div style="margin-top:8px;">
-      {% if c.puede_cancelar and c.estado != 'cancelada' %}
-        <a href="{% url 'cancelar_cita' c.id %}" class="btn-submit" style="background:#dc3545;">Cancelar</a>
-      {% endif %}
+{% if citas %}
+    {% for c in citas %}
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>{{ c.servicio.nombre }}</h3>
+                <span class="estado {{ c.estado }}">{{ c.estado|title }}</span>
+            </div>
 
-      {% if user.is_authenticated %}
-        <a href="{% url 'reagendar_cita' c.id %}" class="btn-submit" style="background:#007bff;">Reagendar</a>
-      {% endif %}
-    </div>
-  </div>
-{% empty %}
-  <p>No tienes citas registradas.</p>
-{% endfor %}
-{%endblock%}
+            <p><strong>Fecha:</strong> {{ c.fecha|date:"d/m/Y" }}</p>
+            <p><strong>Hora:</strong> {{ c.hora|time:"H:i" }}</p>
+            <p><strong>Estado:</strong> {{ c.estado|title }}</p>
+
+            <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                {% if c.estado == 'pendiente' %}
+                    <a href="{% url 'cancelar_cita' c.id %}" class="btn danger">Cancelar</a>
+                    <a href="{% url 'reagendar_cita' c.id %}" class="btn info">Reagendar</a>
+                {% else %}
+                    <a href="{% url 'detalle_cita' c.id %}" class="btn neutral">Ver Detalle</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p style="color:#ddd;">Aún no tienes citas agendadas.</p>
+{% endif %}
+{% endblock %}

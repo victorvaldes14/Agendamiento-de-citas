@@ -4,302 +4,193 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Citus Peluquería{% endblock %}</title>
+
     <style>
+        /* ----- RESET ----- */
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: "Segoe UI", Roboto, sans-serif;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(to bottom right, #2d3436, #636e72);
+            background: linear-gradient(180deg, #434343, #2f2f2f);
+            color: #222;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
-        /* -------------------- NAVBAR -------------------- */
-        nav {
-            width: 100%;
-            background: #212529;
+        /* ----- NAVBAR ----- */
+        header {
+            background-color: #0f0f0f;
             color: white;
-            padding: 12px 40px;
+            padding: 12px 6%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        nav .brand {
-            font-weight: 700;
-            font-size: 18px;
+        header h1 {
+            font-size: 20px;
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
 
         nav a {
             color: white;
             text-decoration: none;
-            margin-right: 20px;
+            margin: 0 10px;
             font-weight: 500;
-            transition: color 0.3s;
+            transition: 0.2s;
         }
 
         nav a:hover {
-            color: #ffc107;
+            color: #5cc9ff;
         }
 
-        /* -------------------- CONTENEDOR PRINCIPAL -------------------- */
-        .auth-wrapper {
-            display: flex;
-            background: #f8f9fa;
-            border-radius: 16px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            max-width: 900px;
-            width: 100%;
-            margin-top: 40px;
+        /* ----- MAIN CONTENT ----- */
+        main {
+            max-width: 1000px;
+            margin: 50px auto;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .auth-side {
-            flex: 1;
-            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
-            padding: 60px 40px;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .auth-side h2 {
-            font-size: 32px;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .auth-side p {
-            font-size: 16px;
-            line-height: 1.6;
-            color: #dee2e6;
-        }
-
-        .auth-form-container {
-            flex: 1;
-            padding: 60px 50px;
-            background: white;
-            overflow-y: auto;
-            max-height: 90vh;
-        }
-
-        .form-title {
-            margin-bottom: 10px;
-        }
-
-        .form-title h1 {
-            color: #212529;
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .form-subtitle {
-            color: #6c757d;
-            font-size: 14px;
-            margin-bottom: 35px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            color: #495057;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            font-size: 15px;
-            background: #f8f9fa;
-            transition: all 0.3s;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #495057;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(73, 80, 87, 0.1);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background: #495057;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 10px;
-        }
-
-        .btn-submit:hover {
-            background: #343a40;
-            box-shadow: 0 8px 16px rgba(73, 80, 87, 0.3);
-        }
-
-        .btn-submit:active {
-            transform: scale(0.98);
-        }
-
-        .footer-text {
+        /* ----- FOOTER ----- */
+        footer {
             text-align: center;
-            color: #6c757d;
+            color: #aaa;
             font-size: 14px;
+            padding: 30px 0;
         }
 
-        .footer-text a {
-            color: #495057;
+        /* ----- BUTTONS ----- */
+        .btn {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #fff;
             text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
+        .btn.success { background: #28a745; }
+        .btn.info { background: #007bff; }
+        .btn.danger { background: #dc3545; }
+        .btn.neutral { background: #6c757d; }
+
+        /* ----- CARDS ----- */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+
+        .estado {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-transform: capitalize;
+            font-size: 13px;
+        }
+        .estado.pendiente { background: #ffc107; color: #000; }
+        .estado.completada { background: #28a745; color: #fff; }
+        .estado.cancelada { background: #dc3545; color: #fff; }
+
+        /* ----- MODAL ----- */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.hidden { display: none; }
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        .modal-content h3 {
+            margin-bottom: 10px;
+            color: #222;
+        }
+        .modal-content label {
+            display: block;
+            margin: 8px 0 4px;
             font-weight: 600;
         }
-
-        .footer-text a:hover {
-            text-decoration: underline;
-        }
-
-        .messages {
-            margin-bottom: 20px;
-        }
-
-        .alert {
-            padding: 12px 16px;
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
             border-radius: 6px;
-            margin-bottom: 10px;
-            font-size: 14px;
+        }
+        .modal-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
         }
 
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .errorlist {
-            list-style: none;
-            margin: 5px 0 0 0;
-            padding: 0;
-        }
-
-        .errorlist li {
-            color: #dc3545;
-            font-size: 13px;
-            margin-top: 5px;
-        }
-
+        /* ----- RESPONSIVE ----- */
         @media (max-width: 768px) {
-            nav {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .auth-wrapper {
-                flex-direction: column;
-                margin: 20px;
-            }
-
-            .auth-side {
-                padding: 40px 30px;
-            }
-
-            .auth-form-container {
-                padding: 40px 30px;
-            }
-
-            nav a {
-                display: inline-block;
-                margin: 5px 10px;
-            }
+            main { padding: 15px; }
+            nav a { margin: 0 6px; }
+            .modal-content { width: 90%; }
         }
-
-        {% block extra_css %}{% endblock %}
     </style>
+
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-    <!-- Barra de navegación -->
-    <nav>
-        <div class="brand">💈 Citus Peluquería</div>
-        <div>
+    <header>
+        <h1>Citus Peluquería</h1>
+        <nav>
             <a href="{% url 'inicio' %}">Inicio</a>
             <a href="{% url 'agendar_cita_publica' %}">Agendar Cita</a>
-
-                {% if user.is_authenticated %}
-                    {% if user.is_superuser %}
-                        <a href="/admin/">Panel Admin</a>
-                    {% elif user.perfilusuario.es_peluquero %}
-                        <a href="{% url 'panel_peluquero' %}">Panel Peluquero</a>
-                    {% else %}
-                        <a href="{% url 'panel_usuario' %}">Mi Panel</a>
-                    {% endif %}
-                    <a href="{% url 'logout' %}">Cerrar sesión</a>
+            {% if user.is_authenticated %}
+                {% if user.is_superuser %}
+                    <a href="{% url 'admin:index' %}">Panel Admin</a>
+                {% elif user.perfilusuario.es_peluquero %}
+                    <a href="{% url 'panel_peluquero' %}">Panel Peluquero</a>
                 {% else %}
-                    <a href="{% url 'login' %}">Iniciar sesión</a>
-                    <a href="{% url 'registrarse' %}">Registrarse</a>
+                    <a href="{% url 'panel_usuario' %}">Mi Panel</a>
                 {% endif %}
-
-        </div>
-    </nav>
-
-    <!-- Contenido principal -->
-    <div class="auth-wrapper">
-        <div class="auth-side">
-            {% block sidebar_content %}
-            <h2>Bienvenido</h2>
-            <p>Accede a tu cuenta para gestionar tus citas y servicios.</p>
-            {% endblock %}
-        </div>
-
-        <div class="auth-form-container">
-            {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-            </div>
+                <a href="{% url 'logout' %}">Cerrar sesión</a>
+            {% else %}
+                <a href="{% url 'login' %}">Iniciar Sesión</a>
+                <a href="{% url 'registrarse' %}">Registrarse</a>
             {% endif %}
+        </nav>
+    </header>
 
-            {% block content %}{% endblock %}
-        </div>
-    </div>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>© 2025 Citus Peluquería — Sistema de gestión de citas</p>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
 
 </body>
 </html>

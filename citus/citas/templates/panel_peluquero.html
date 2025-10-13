@@ -5,28 +5,79 @@
 <h1 style="color:white; margin-bottom:20px;">Citas Asignadas</h1>
 
 {% if citas %}
-  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:15px;">
     {% for c in citas %}
-      <div style="background:white; padding:15px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-        <h3 style="margin-top:0; color:#212529;">{{ c.servicio.nombre }}</h3>
-        <p><strong>Cliente:</strong> {{ c.nombre_cliente|default:c.usuario.username }}</p>
-        <p><strong>Fecha:</strong> {{ c.fecha|date:"d/m/Y" }}</p>
-        <p><strong>Hora:</strong> {{ c.hora|time:"H:i" }}</p>
-        <p><strong>Estado:</strong>
-          {% if c.estado == 'pendiente' %}
-            <span style="background:#ffc107; color:#000; padding:4px 8px; border-radius:6px;">Pendiente</span>
-          {% elif c.estado == 'completada' %}
-            <span style="background:#28a745; color:#fff; padding:4px 8px; border-radius:6px;">Completada</span>
-          {% elif c.estado == 'cancelada' %}
-            <span style="background:#dc3545; color:#fff; padding:4px 8px; border-radius:6px;">Cancelada</span>
-          {% else %}
-            {{ c.get_estado_display }}
-          {% endif %}
-        </p>
-      </div>
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>{{ c.servicio.nombre }}</h3>
+                <span class="estado {{ c.estado }}">{{ c.estado|title }}</span>
+            </div>
+
+            <p><strong>Cliente:</strong> {{ c.nombre_cliente|default:c.usuario.username }}</p>
+            <p><strong>Fecha:</strong> {{ c.fecha|date:"d/m/Y" }}</p>
+            <p><strong>Hora:</strong> {{ c.hora|time:"H:i" }}</p>
+
+            <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                {% if c.estado == 'pendiente' %}
+                    <a href="{% url 'finalizar_cita' c.id %}" class="btn success">Finalizar</a>
+                    <button onclick="abrirModalReagendar({{ c.id }})" class="btn info">Reagendar</button>
+                    <button onclick="abrirModalCancelar({{ c.id }})" class="btn danger">Cancelar</button>
+                {% else %}
+                    <a href="{% url 'detalle_cita' c.id %}" class="btn neutral">Ver Detalle</a>
+                {% endif %}
+            </div>
+        </div>
     {% endfor %}
-  </div>
 {% else %}
-  <p style="color:#adb5bd;">No tienes citas asignadas actualmente.</p>
+    <p style="color:#ddd;">No tienes citas asignadas actualmente.</p>
 {% endif %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+<!-- MODAL -->
+<div id="modal" class="modal hidden">
+    <div class="modal-content">
+        <h3 id="modal-titulo"></h3>
+        <form id="modal-form" method="POST">
+            {% csrf_token %}
+            <div id="modal-body"></div>
+            <div class="modal-actions">
+                <button type="submit" class="btn success">Guardar</button>
+                <button type="button" onclick="cerrarModal()" class="btn neutral">Cerrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function abrirModalReagendar(id) {
+    const modal = document.getElementById('modal');
+    modal.classList.remove('hidden');
+    document.getElementById('modal-titulo').innerText = 'Reagendar Cita';
+    document.getElementById('modal-body').innerHTML = `
+        <label>Nueva fecha:</label>
+        <input type="date" name="nueva_fecha" required><br>
+        <label>Nueva hora:</label>
+        <input type="time" name="nueva_hora" required><br>
+        <label>Motivo del reagendamiento:</label>
+        <textarea name="motivo_reagendamiento" required></textarea>
+    `;
+    document.getElementById('modal-form').action = '/peluquero/cita/' + id + '/reagendar/';
+}
+
+function abrirModalCancelar(id) {
+    const modal = document.getElementById('modal');
+    modal.classList.remove('hidden');
+    document.getElementById('modal-titulo').innerText = 'Cancelar Cita';
+    document.getElementById('modal-body').innerHTML = `
+        <label>Motivo de cancelación:</label>
+        <textarea name="motivo_cancelacion" required></textarea>
+    `;
+    document.getElementById('modal-form').action = '/peluquero/cita/' + id + '/cancelar/';
+}
+
+function cerrarModal() {
+    document.getElementById('modal').classList.add('hidden');
+}
+</script>
 {% endblock %}

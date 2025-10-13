@@ -1,30 +1,22 @@
 {% extends 'master.html' %}
 {% block title %}Agendar Cita{% endblock %}
-{% block content %}
-<h1>Agendar tu Cita</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn-submit">Confirmar Cita</button>
-</form>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const fechaInput = document.querySelector('input[type="date"]');
-  const horaSelect = document.querySelector('select[name="hora"]');
-  fechaInput.addEventListener('change', () => {
-    fetch(`/horas/?fecha=${fechaInput.value}`)
-      .then(r => r.json())
-      .then(data => {
-        horaSelect.innerHTML = '';
-        data.horas.forEach(h => {
-          const opt = document.createElement('option');
-          opt.value = h;
-          opt.textContent = h;
-          horaSelect.appendChild(opt);
-        });
-      });
-  });
-});
-</script>
+{% block content %}
+<div style="max-width:550px; margin:0 auto; background:white; padding:25px; border-radius:12px;">
+    <h2 style="text-align:center; margin-bottom:20px;">Agendar Nueva Cita</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="background:#28a745; color:white; padding:10px; border-radius:6px; margin-bottom:10px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn success" style="width:100%; margin-top:10px;">Confirmar Cita</button>
+    </form>
+</div>
 {% endblock %}

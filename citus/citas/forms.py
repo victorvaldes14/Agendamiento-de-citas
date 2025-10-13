@@ -2,9 +2,27 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Cita, ServicioCorte
-import datetime
 
+class CitaEstadoForm(forms.ModelForm):
+    class Meta:
+        model = Cita
+        fields = ['estado']
 
+class ReagendarCitaPeluqueroForm(forms.ModelForm):
+    nueva_fecha = forms.DateField(label="Nueva fecha", widget=forms.DateInput(attrs={'type': 'date'}))
+    nueva_hora = forms.TimeField(label="Nueva hora", widget=forms.TimeInput(attrs={'type': 'time'}))
+    motivo_reagendamiento = forms.CharField(label="Motivo del reagendamiento", widget=forms.Textarea, required=True)
+
+    class Meta:
+        model = Cita
+        fields = ['nueva_fecha', 'nueva_hora', 'motivo_reagendamiento']
+
+class CancelarCitaPeluqueroForm(forms.ModelForm):
+    motivo_cancelacion = forms.CharField(label="Motivo de cancelación", widget=forms.Textarea, required=True)
+
+    class Meta:
+        model = Cita
+        fields = ['motivo_cancelacion']
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(

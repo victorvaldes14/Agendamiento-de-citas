@@ -1,13 +1,15 @@
 {% extends 'master.html' %}
-{% block title %}Editar Cita{% endblock %}
+{% block title %}editar Cita{% endblock %}
+
 {% block content %}
-<h1>Editar Cita</h1>
+<div style="max-width:550px; margin:0 auto; background:white; padding:25px; border-radius:12px;">
+    <h2 style="text-align:center; margin-bottom:20px;">Editar Cita</h2>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-
-  <button type="submit" class="btn-submit">Guardar Cambios</button>
-  <a href="{% url 'panel_peluquero' %}" class="btn-submit" style="background:#6c757d;">Cancelar</a>
-</form>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn danger" style="width:100%; margin-top:10px;">Confirmar Edición</button>
+        <a href="{% url 'panel_usuario' %}" class="btn neutral" style="width:100%; margin-top:8px; text-align:center;">Volver</a>
+    </form>
+</div>
 {% endblock %}

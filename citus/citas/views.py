@@ -3,17 +3,59 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 from django.http import JsonResponse
-from .forms import CustomUserCreationForm, CitaPublicaForm
+from .forms import CustomUserCreationForm, CitaPublicaForm, CitaEstadoForm, ReagendarCitaPeluqueroForm, CancelarCitaPeluqueroForm
 from .models import Cita, ServicioCorte, PerfilUsuario
 from django.contrib.auth import login as auth_login
 from django.core.exceptions import ValidationError
 from django.contrib.auth import logout
-from django.utils import timezone
-from .models import Cita, PerfilUsuario
+
+@login_required
+def finalizar_cita(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, peluquero=request.user)
+    cita.estado = 'completada'
+    cita.save()
+    messages.success(request, f"La cita del {cita.fecha} a las {cita.hora} ha sido marcada como completada ✅")
+    return redirect('panel_peluquero')
+
+
+@login_required
+def cancelar_cita_peluquero(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, peluquero=request.user)
+    if request.method == "POST":
+        form = CancelarCitaPeluqueroForm(request.POST, instance=cita)
+        if form.is_valid():
+            cita.estado = 'cancelada'
+            cita.motivo_cancelacion = form.cleaned_data['motivo_cancelacion']
+            cita.save()
+            messages.warning(request, "La cita ha sido cancelada")
+            return redirect('panel_peluquero')
+    else:
+        form = CancelarCitaPeluqueroForm(instance=cita)
+    return render(request, "cancelar_cita_peluquero.html", {"form": form, "cita": cita})
+
+
+@login_required
+def reagendar_cita_peluquero(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, peluquero=request.user)
+    if request.method == "POST":
+        form = ReagendarCitaPeluqueroForm(request.POST)
+        if form.is_valid():
+            cita.fecha = form.cleaned_data['nueva_fecha']
+            cita.hora = form.cleaned_data['nueva_hora']
+            cita.motivo_reagendamiento = form.cleaned_data['motivo_reagendamiento']
+            cita.estado = 'pendiente'
+            cita.save()
+            messages.info(request, "La cita ha sido reagendada correctamente")
+            return redirect('panel_peluquero')
+    else:
+        form = ReagendarCitaPeluqueroForm()
+    return render(request, "reagendar_cita_peluquero.html", {"form": form, "cita": cita})
+
+
 
 def logout_view(request):
     logout(request)
-    messages.success(request, "Sesión cerrada correctamente 👋")
+    messages.success(request, "Sesión cerrada correctamente")
     return redirect('inicio')
 
 
@@ -29,7 +71,7 @@ def registro(request):
         if form.is_valid():
             user = form.save()
             auth_login(request, user)
-            messages.success(request, "Cuenta creada correctamente 🎉")
+            messages.success(request, "Cuenta creada correctamente ")
             return redirect('panel_usuario')
         else:
             messages.error(request, "Corrige los errores en el formulario.")
@@ -103,7 +145,7 @@ def agendar_cita_publica(request):
 
             messages.success(
                 request,
-                "Tu cita ha sido agendada correctamente 🎉 "
+                "Tu cita ha sido agendada correctamente"
                 "Recibirás un recordatorio automático 24 horas antes de la fecha programada."
             )
             return redirect("inicio")
@@ -181,7 +223,7 @@ def reagendar_cita(request, cita_id):
             nueva_cita.estado = "pendiente"
             nueva_cita.full_clean()
             nueva_cita.save()
-            messages.success(request, "Cita reagendada correctamente 📅")
+            messages.success(request, "Cita reagendada correctamente")
             return redirect('panel_usuario')
     else:
         form = CitaPublicaForm(instance=cita, user=request.user)
@@ -197,8 +239,8 @@ def panel_peluquero(request):
     perfil = getattr(request.user, 'perfilusuario', None)
     citas = Cita.objects.filter(peluquero=request.user).order_by('fecha', 'hora')
 
-    print("🧠 Usuario logeado:", request.user.username, request.user.id)
-    print("📋 Citas encontradas:", citas.count())
+    print("Usuario logeado:", request.user.username, request.user.id)
+    print(" Citas encontradas:", citas.count())
 
     for c in citas:
         print(f" - {c.servicio.nombre} | {c.fecha} | {c.hora} | Cliente: {c.nombre_cliente}")
@@ -208,7 +250,10 @@ def panel_peluquero(request):
         "perfil": perfil
     })
 
-
+@login_required
+def detalle_cita(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id)
+    return render(request, "detalle_cita.html", {"cita": cita})
 
 @user_passes_test(es_peluquero, login_url='login')
 def editar_cita_peluquero(request, cita_id):
@@ -239,7 +284,7 @@ def marcar_cita_atendida(request, cita_id):
     cita = get_object_or_404(Cita, id=cita_id, peluquero=request.user)
     cita.estado = "completada"
     cita.save()
-    messages.success(request, "Cita marcada como atendida ✅")
+    messages.success(request, "Cita marcada como atendida")
     return redirect("panel_peluquero")
 
 

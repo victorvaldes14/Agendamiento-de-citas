@@ -50,6 +50,9 @@ class Cita(models.Model):
 
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
+    motivo_cancelacion = models.TextField(blank=True, null=True)
+    motivo_reagendamiento = models.TextField(blank=True, null=True)
+
 
     class Meta:
         ordering = ['-fecha', '-hora']

@@ -1,135 +1,29 @@
 {% extends 'master.html' %}
-
 {% block title %}Detalle de Cita{% endblock %}
 
-{% block sidebar_content %}
-<h2>Detalle de tu Cita</h2>
-<p>Revisa toda la información de tu cita agendada.</p>
-{% endblock %}
-
 {% block content %}
-<div class="form-title">
-    <h1>Detalle de la Cita</h1>
-    <p class="form-subtitle">Información completa de tu reserva</p>
-</div>
+<div style="max-width:550px; margin:0 auto; background:white; padding:25px; border-radius:12px;">
+    <h2 style="text-align:center; margin-bottom:20px;">Detalle de la Cita</h2>
 
-<div style="margin-top: 30px;">
-    <!-- Información del Servicio -->
-    <div style="background: white; border: 2px solid #495057; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
-        <h3 style="color: #495057; margin: 0 0 20px 0; border-bottom: 2px solid #dee2e6; padding-bottom: 10px;">
-            {{ cita.servicio.nombre }}
-        </h3>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            <div>
-                <p style="color: #6c757d; font-size: 13px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                    Fecha
-                </p>
-                <p style="color: #495057; font-size: 18px; font-weight: 600; margin: 5px 0 0 0;">
-                    📅 {{ cita.fecha|date:"d/m/Y" }}
-                </p>
-                <p style="color: #6c757d; font-size: 14px; margin: 3px 0 0 0;">
-                    {{ cita.fecha|date:"l" }}
-                </p>
-            </div>
+    <p><strong>Servicio:</strong> {{ cita.servicio.nombre }}</p>
+    <p><strong>Cliente:</strong> {{ cita.nombre_cliente|default:cita.usuario.username }}</p>
+    <p><strong>Fecha:</strong> {{ cita.fecha|date:"d/m/Y" }}</p>
+    <p><strong>Hora:</strong> {{ cita.hora|time:"H:i" }}</p>
+    <p><strong>Estado:</strong> {{ cita.estado|title }}</p>
 
-            <div>
-                <p style="color: #6c757d; font-size: 13px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                    Hora
-                </p>
-                <p style="color: #495057; font-size: 18px; font-weight: 600; margin: 5px 0 0 0;">
-                    🕐 {{ cita.hora|time:"H:i" }}
-                </p>
-            </div>
-
-            <div>
-                <p style="color: #6c757d; font-size: 13px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                    Duración
-                </p>
-                <p style="color: #495057; font-size: 18px; font-weight: 600; margin: 5px 0 0 0;">
-                    ⏱️ {{ cita.servicio.duracion_minutos }} min
-                </p>
-            </div>
-
-            <div>
-                <p style="color: #6c757d; font-size: 13px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                    Precio
-                </p>
-                <p style="color: #495057; font-size: 18px; font-weight: 600; margin: 5px 0 0 0;">
-                    💰 ${{ cita.servicio.precio }}
-                </p>
-            </div>
-        </div>
-
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #dee2e6;">
-            <p style="color: #6c757d; font-size: 13px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                Estado de la Cita
-            </p>
-            <span style="
-                {% if cita.estado == 'confirmada' %}
-                    background: #d4edda; color: #155724;
-                {% elif cita.estado == 'pendiente' %}
-                    background: #fff3cd; color: #856404;
-                {% elif cita.estado == 'completada' %}
-                    background: #d1ecf1; color: #0c5460;
-                {% else %}
-                    background: #f8d7da; color: #721c24;
-                {% endif %}
-                padding: 8px 16px; border-radius: 6px; font-weight: 600; display: inline-block;
-            ">
-                {{ cita.get_estado_display }}
-            </span>
-        </div>
-
-        {% if cita.notas %}
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #dee2e6;">
-            <p style="color: #6c757d; font-size: 13px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                Notas Adicionales
-            </p>
-            <p style="color: #495057; font-size: 15px; margin: 0; line-height: 1.6;">
-                {{ cita.notas }}
-            </p>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Descripción del Servicio -->
-    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="color: #495057; margin: 0 0 10px 0;">Descripción del Servicio</h4>
-        <p style="color: #6c757d; margin: 0; line-height: 1.6;">
-            {{ cita.servicio.descripcion }}
-        </p>
-    </div>
-
-    <!-- Información Adicional -->
-    <div style="background: #e7f3ff; border: 1px solid #b3d9ff; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-        <p style="color: #004085; margin: 0; font-size: 14px;">
-            <strong>📍 Ubicación:</strong> Citus Peluquería - [Dirección aquí]
-        </p>
-        <p style="color: #004085; margin: 10px 0 0 0; font-size: 14px;">
-            <strong>📞 Contacto:</strong> [Teléfono aquí]
-        </p>
-    </div>
-
-    <!-- Botones de Acción -->
-    <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap;">
-        {% if cita.puede_cancelar and cita.estado != 'cancelada' %}
-        <a href="{% url 'cancelar_cita' cita.id %}" class="btn-submit" style="background: #dc3545; flex: 1; min-width: 200px; text-align: center; text-decoration: none;">
-            Cancelar Cita
-        </a>
-        {% endif %}
-        <a href="{% url 'panel_usuario' %}" class="btn-submit" style="background: #6c757d; flex: 1; min-width: 200px; text-align: center; text-decoration: none;">
-            Volver al Panel
-        </a>
-    </div>
-
-    {% if not cita.puede_cancelar and cita.estado in 'pendiente,confirmada' %}
-    <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 6px; margin-top: 20px;">
-        <p style="color: #856404; margin: 0; font-size: 14px;">
-            <strong>⚠️ Aviso:</strong> Esta cita no puede ser cancelada porque faltan menos de 2 horas. 
-            Por favor contacta directamente a la peluquería si necesitas hacer cambios.
-        </p>
-    </div>
+    {% if cita.motivo_cancelacion %}
+        <p><strong>Motivo de cancelación:</strong> {{ cita.motivo_cancelacion }}</p>
     {% endif %}
+    {% if cita.motivo_reagendamiento %}
+        <p><strong>Motivo de reagendamiento:</strong> {{ cita.motivo_reagendamiento }}</p>
+    {% endif %}
+
+    <div style="text-align:center; margin-top:20px;">
+        {% if user.perfilusuario.es_peluquero %}
+            <a href="{% url 'panel_peluquero' %}" class="btn neutral">Volver</a>
+        {% else %}
+            <a href="{% url 'panel_usuario' %}" class="btn neutral">Volver</a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

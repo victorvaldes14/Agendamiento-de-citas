@@ -1,42 +1,24 @@
 {% extends 'master.html' %}
-
 {% block title %}Iniciar Sesión{% endblock %}
 
-{% block sidebar_content %}
-<h2>Bienvenido de nuevo</h2>
-<p>Ingresa tus credenciales para acceder a tu panel o crea una cuenta si aún no tienes una.</p>
-{% endblock %}
-
 {% block content %}
-<div class="form-title">
-    <h1>Iniciar Sesión</h1>
-    <p class="form-subtitle">Accede a tu cuenta</p>
-</div>
-
-<form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <div class="input-group">
-        <label for="id_username">Usuario</label>
-        <input type="text" name="username" class="form-input" id="id_username" placeholder="Nombre de usuario" required>
-    </div>
-
-    <div class="input-group">
-        <label for="id_password">Contraseña</label>
-        <input type="password" name="password" class="form-input" id="id_password" placeholder="Contraseña" required>
-    </div>
+<div style="max-width:400px; margin:0 auto; background:white; padding:25px; border-radius:12px;">
+    <h2 style="text-align:center; margin-bottom:20px;">Iniciar Sesión</h2>
 
     {% if form.errors %}
-    <div class="alert alert-error">
-        Usuario o contraseña incorrectos.
-    </div>
+        <div style="background:#dc3545; color:white; padding:10px; border-radius:6px; margin-bottom:15px;">
+            Usuario o contraseña incorrectos.
+        </div>
     {% endif %}
 
-    <button type="submit" class="btn-submit">Ingresar</button>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn success" style="width:100%; margin-top:10px;">Entrar</button>
+    </form>
 
-<div class="footer-text" style="margin-top: 20px;">
-    ¿No tienes cuenta? <a href="{% url 'registrarse' %}">Crea una aquí</a><br>
-    <a href="{% url 'inicio' %}">← Volver al inicio</a>
+    <p style="text-align:center; margin-top:15px; font-size:14px;">
+        ¿No tienes cuenta? <a href="{% url 'registrarse' %}">Regístrate aquí</a>.
+    </p>
 </div>
-
-</form>
 {% endblock %}
